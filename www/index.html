@@ -137,6 +137,23 @@
             margin-top: 20px;
         }
 
+        .btn-vatican {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--accent);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            padding: 4px 12px;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn-vatican:active { background: var(--accent); color: white; }
+
         .footer-links { display: flex; justify-content: center; gap: 15px; margin-bottom: 8px; }
         .footer-links a { text-decoration: none; color: var(--text-dark); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; }
         .copyright { font-size: 0.55rem; color: #666; margin: 0; line-height: 1.2; }
@@ -176,6 +193,14 @@
             <i class="fas fa-music"></i>
             <span>Piano</span>
         </a>
+        <a onclick="accesoProtegido('CL/cl.html')" class="app-card">
+            <i class="fas fa-cross"></i>
+            <span>Calendario Litúrgico</span>
+        </a>
+        <a onclick="accesoProtegido('Formación/Formación.html')" class="app-card">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Formación</span>
+        </a>
 
         <a id="btnDirector" href="director.html" class="app-card">
             <i class="fas fa-star"></i>
@@ -190,6 +215,7 @@
 </div>
 
 <footer>
+    <a href="vatican.html" class="btn-vatican">Vatican</a>
     <div class="footer-links">
         <a href="acercade.html">Acerca de</a>
         <a href="pdp.html">Política de Privacidad</a>
@@ -254,7 +280,7 @@
         }
     }
 
-    // Lógica de los 6 botones protegidos
+    // Lógica de los botones protegidos
     function accesoProtegido(url) {
         if (usuarioLogueado) {
             window.location.href = url;
