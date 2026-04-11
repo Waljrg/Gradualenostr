@@ -82,8 +82,21 @@
     </div>
 </div>
 <script type="module">
-    // Importamos el plugin de Capacitor necesario para el botón físico
-<script type="module" src="navegacion.js"></script>
+    import { App } from 'https://cdn.jsdelivr.net/npm/@capacitor/app@latest/dist/esm/index.js';
+
+    window.onload = function() {
+        App.addListener('backButton', () => {
+            const pagina = window.location.pathname.split("/").pop();
+
+            if (pagina === 'index.html' || pagina === '') {
+                App.exitApp();
+            } else {
+                window.location.assign('index.html');
+            }
+        });
+    };
+</script>
+
 
 <script>
     const firebaseConfig = {
