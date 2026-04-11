@@ -130,6 +130,7 @@
 
 <div class="login-card">
     <img src="Iconos/logo.png" alt="Logo" style="width: 60px; margin-bottom: 10px;">
+    <p style="font-family: 'Cinzel', serif; font-weight: 700; color: var(--accent); margin-bottom: 20px; font-size: 0.9rem;">Coro Parroquial San Francisco de Asís - Camoapa</p>
     <h1>Acceso</h1>
     <p style="font-size: 0.9rem; color: #777; margin-bottom: 30px;">Inicia sesión en tu cuenta de músico</p>
 
@@ -182,6 +183,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="capacitor.js"></script>
 
 <script>
     // 1. Configuración de Firebase
@@ -202,17 +204,19 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
 
+    // 3. Inicialización de Plugin Nativo de Google
+    const { GoogleAuth } = Capacitor.Plugins;
+
     // Optimización de persistencia (Modo Offline)
     db.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED });
     db.enablePersistence().catch(err => console.error("Error de persistencia:", err));
 
-    // 3. Gestión de Roles y Permisos
+    // 4. Gestión de Roles y Permisos
     const DIRECTOR_EMAIL = "waljrg@gmail.com"; 
     let isAdmin = false;
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            // El usuario Reyes (waljrg@gmail.com) es admin por defecto
             if(user.email === DIRECTOR_EMAIL) {
                 isAdmin = true;
             } else {
@@ -220,22 +224,13 @@
                 isAdmin = doc.exists && doc.data().rol === "admin";
             }
             console.log("Usuario identificado:", user.email, "Es Admin:", isAdmin);
-            
-            // Redirección tras login exitoso
             window.location.href = 'index.html';
         } else {
             isAdmin = false;
         }
     });
 
-    // Manejar el resultado de la redirección al volver a la página
-    auth.getRedirectResult().catch((err) => {
-        if (err.code !== 'auth/redirect-cancelled-by-user') {
-            alert("Error al volver del inicio de sesión: " + err.message);
-        }
-    });
-
-    // 4. Funciones de Base de Datos (CRUD de Cantos)
+    // 5. Funciones de Base de Datos
     async function guardarCanto(cantoData, currentId = null) {
         try {
             if(currentId) {
@@ -260,7 +255,7 @@
         });
     }
 
-    // 5. Lógica de Sincronización (Modo Director)
+    // 6. Lógica de Sincronización
     async function sincronizarSesion(cantoId, transpose) {
         if(!isAdmin) return;
         await db.collection("sesion").doc("activa").set({
@@ -278,7 +273,7 @@
         });
     }
 
-    // 6. Autenticación (Cambios realizados para evitar bloqueos)
+    // 7. Autenticación
     async function loginEmail() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
@@ -295,21 +290,28 @@
         } catch (err) { alert("Error al registrar: " + err.message); }
     }
 
+    // Función de Google actualizada al Plugin Nativo
     async function loginGoogle() {
         try {
-            // Se usa Redirect en lugar de Popup para evitar bloqueos del navegador
-            await auth.signInWithRedirect(googleProvider);
-        } catch (err) { alert("Error Google: " + err.message); }
+            const user = await GoogleAuth.signIn();
+            const credential = firebase.auth.GoogleAuthProvider.credential(user.authentication.idToken);
+            await auth.signInWithCredential(credential);
+        } catch (err) { 
+            console.error("Error Google Nativo:", err);
+            alert("Error Google: " + (err.message || "No se pudo iniciar sesión")); 
+        }
     }
 
     async function loginFacebook() {
         try {
-            // Se usa Redirect en lugar de Popup para evitar bloqueos del navegador
-            await auth.signInWithRedirect(facebookProvider);
+            await auth.signInWithPopup(facebookProvider);
         } catch (err) { alert("Error Facebook: " + err.message); }
     }
 
-    async function logout() { return await auth.signOut(); }
+    async function logout() { 
+        await GoogleAuth.signOut();
+        return await auth.signOut(); 
+    }
 
     // Lógica de Teléfono
     let confirmationResult = null;

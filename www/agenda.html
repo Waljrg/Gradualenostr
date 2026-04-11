@@ -3,247 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agenda Nostra | Sistema Jerárquico</title>
+    <title>Agenda | Graduale Nostrum</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root {
-            --primary: #2C211F; --accent: #B8860B; --accent-light: #E8D4A2;
-            --bg: #FDFBF7; --surface: #FFFFFF; --text: #3E322E;
-            --border: 1px solid rgba(184, 134, 11, 0.2);
-            --radius-md: 16px; --radius-lg: 30px;
-        }
-
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        :root { --primary: #2C211F; --accent: #B8860B; --bg: #FDFBF7; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 100px; color: var(--primary); }
+        header { background: var(--primary); color: #E8D4A2; padding: 20px; text-align: center; border-bottom: 4px solid var(--accent); }
         
-        header { 
-            background: linear-gradient(135deg, var(--primary) 0%, #4A3632 100%); 
-            color: var(--accent-light); padding: 2rem 1rem; text-align: center;
-            border-bottom: 4px solid var(--accent); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg);
-        }
-        h1 { font-family: 'Cinzel', serif; margin: 0; font-size: 1.4rem; }
-
-        .container { padding: 20px; max-width: 600px; margin: auto; }
-
-        .card {
-            background: var(--surface); padding: 20px; border-radius: var(--radius-md);
-            margin-bottom: 12px; border: var(--border); border-left: 6px solid var(--accent);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative; cursor: pointer;
-        }
-
-        .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 10; }
-        .btn-icon { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem; }
-        .btn-icon.delete { color: #8b0000; }
-
-        .view { display: none; animation: fadeIn 0.3s ease; }
-        .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; font-family: 'Cinzel'; color: var(--primary); }
-        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: var(--border); box-sizing: border-box; font-family: 'Inter'; background: white; }
+        /* Estilos nuevos para el encabezado */
+        .logo-header { width: 50px; height: auto; margin-bottom: 5px; }
+        h1 { font-family: 'Cinzel', serif; margin: 0; font-size: 1.6rem; letter-spacing: 2px; }
+        .subtitle { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 3px; opacity: 0.9; margin-top: 2px; }
         
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-family: 'Cinzel'; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-primary { background: var(--primary); color: var(--accent-light); border: 1px solid var(--accent); }
-        .btn-back { background: transparent; color: var(--primary); text-align: left; padding: 0; margin-bottom: 10px; border: none; cursor: pointer; font-family: 'Inter'; }
+        .user-info { font-size: 0.8rem; color: #E8D4A2; opacity: 0.8; margin-top: 10px; min-height: 15px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border-left: 5px solid var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.05); position: relative; }
+        .card.personal { border-left-color: #795548; background: #fffdf9; }
+        .card.personal::after { content: "PERSONAL"; position: absolute; top: 10px; right: 40px; font-size: 0.6rem; background: #eee; padding: 2px 5px; border-radius: 4px; color: #666; }
+        
+        .card h3 { margin: 0 0 5px 0; font-size: 1.1rem; padding-right: 25px; }
+        .card p { margin: 0; font-size: 0.9rem; opacity: 0.8; white-space: pre-wrap; }
+        .card .fecha { font-size: 0.7rem; color: var(--accent); font-weight: bold; margin-bottom: 5px; display: block; }
+        
+        .btn-delete { position: absolute; top: 15px; right: 15px; color: #b71c1c; cursor: pointer; opacity: 0.6; transition: 0.3s; padding: 5px; }
+        .btn-delete:hover { opacity: 1; }
 
-        .member-tag { background: var(--accent-light); font-size: 0.7rem; padding: 4px 10px; border-radius: 8px; margin: 2px; display: inline-flex; align-items: center; gap: 5px; color: var(--primary); font-weight: bold; }
-
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        label { font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-top: 5px; display: block; }
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-add { background: var(--primary); color: white; }
+        
         .fab { 
-            position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
-            border-radius: 50%; background: var(--primary); color: var(--accent-light);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-size: 1.6rem;
-            border: 2px solid var(--accent); cursor: pointer; z-index: 100;
+            position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; 
+            background: var(--accent); color: var(--primary); display: none; align-items: center; 
+            justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 1.5rem; border: none; cursor: pointer; 
         }
-        .fab-sub { bottom: 110px; width: 55px; height: 55px; font-size: 1.3rem; background: var(--accent); color: var(--primary); }
     </style>
 </head>
 <body>
 
-<header><h1 id="headerTitle">AGENDAS MADRE</h1></header>
+<header>
+    <img src="iconos/logo.png" alt="Logo" class="logo-header">
+    <h1>AGENDA</h1>
+    <div class="subtitle">GRADUALE NOSTRUM</div>
+    <div id="userDisplayName" class="user-info">Verificando sesión...</div>
+</header>
 
-<div class="container">
-    <div id="madreListView" class="view active"><div id="madreContainer"></div></div>
+<div class="container" id="listaActividades">
+    <p style="text-align:center; opacity:0.5;">Cargando agenda...</p>
+</div>
 
-    <div id="madreFormView" class="view">
-        <button class="btn btn-back" onclick="showView('madreListView')"><i class="fas fa-arrow-left"></i> Volver</button>
-        <h2 id="madreFormTitle">Nueva Agenda Madre</h2>
-        <div class="form-group">
-            <label>Nombre del Grupo</label>
-            <input type="text" id="nombreMadre" placeholder="Ej: Coro Parroquial">
-        </div>
-        <div class="form-group">
-            <label>Agregar Miembro (Correo)</label>
-            <div style="display: flex; gap: 5px;">
-                <input type="email" id="inputCorreo" placeholder="correo@mail.com">
-                <button class="btn btn-primary" style="width: 50px; margin: 0;" onclick="addMiembro()">+</button>
-            </div>
-            <div id="listaMiembrosUI" style="margin-top: 10px;"></div>
-        </div>
-        <button class="btn btn-primary" onclick="saveMadre()">GUARDAR AGENDA MADRE</button>
-    </div>
+<button class="fab" id="btnNuevo" onclick="abrirModal()">
+    <i class="fas fa-plus"></i>
+</button>
 
-    <div id="subListView" class="view">
-        <button class="btn btn-back" onclick="showView('madreListView')"><i class="fas fa-arrow-left"></i> Volver</button>
-        <h2 id="currentMadreTitle" style="font-family: 'Cinzel'; color: var(--accent);"></h2>
-        <div id="subContainer"></div>
-    </div>
-
-    <div id="subFormView" class="view">
-        <button class="btn btn-back" onclick="showView('subListView')"><i class="fas fa-arrow-left"></i> Cancelar</button>
-        <h2 id="subFormTitle">Nueva Actividad</h2>
-        <div class="form-group">
-            <label>Título</label>
-            <input type="text" id="tituloSub">
-        </div>
-        <div class="form-group">
-            <label>Descripción</label>
-            <textarea id="descSub" rows="4"></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="saveSub()">GUARDAR ACTIVIDAD</button>
+<div id="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle" style="font-family: 'Cinzel'; font-size: 1.2rem;">Nueva Actividad</h2>
+        <p id="modalDesc" style="font-size: 0.8rem; margin-bottom: 10px; color: #666;"></p>
+        
+        <label for="fecha_agenda">Fecha y hora del evento:</label>
+        <input type="datetime-local" id="fecha_agenda">
+        
+        <input type="text" id="titulo" placeholder="Título">
+        <textarea id="descripcion" rows="3" placeholder="Detalles..."></textarea>
+        
+        <button class="btn btn-add" id="btnGuardar" onclick="guardarActividad()">PUBLICAR</button>
+        <button class="btn" style="background:#eee; margin-top:5px;" onclick="document.getElementById('modal').style.display='none'">CANCELAR</button>
     </div>
 </div>
 
-<div class="fab" id="fabMadre" onclick="openMadreForm()"><i class="fas fa-folder-plus"></i></div>
-<div class="fab fab-sub" id="fabSub" style="display: none;" onclick="openSubForm()"><i class="fas fa-plus"></i></div>
-
 <script>
-    // --- IMPORTANTE: PEGA AQUÍ TUS CREDENCIALES DEL CANTORAL ---
     const firebaseConfig = {
-        apiKey: "REEMPLAZAR_CON_TU_API_KEY",
-        authDomain: "REEMPLAZAR_CON_TU_DOMINIO",
-        projectId: "REEMPLAZAR_CON_TU_ID",
-        storageBucket: "REEMPLAZAR_CON_TU_BUCKET",
-        messagingSenderId: "REEMPLAZAR_CON_TU_SENDER",
-        appId: "TU_APP_ID"
+        apiKey: "AIzaSyCx_3nwwj3mKAEmtNVW0OaKamuaovhcM-w",
+        authDomain: "graduale-nostrum.firebaseapp.com",
+        projectId: "graduale-nostrum",
+        storageBucket: "graduale-nostrum.firebasestorage.app",
+        messagingSenderId: "534378937675",
+        appId: "1:534378937675:web:677bbc4eb55ef3e6ed7cce",
+        measurementId: "G-LJJLQXQXY1"
     };
 
-    // Inicialización segura
-    let db, auth;
-    try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        auth = firebase.auth();
-    } catch(e) { console.log("Firebase no configurado, usando modo local."); }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const DIRECTOR_EMAIL = "waljrg@gmail.com";
+    let unsubscribe = null;
 
-    let agendasMadre = []; 
-    let currentMadreId = null;
-    let editingMadreId = null;
-    let miembrosTemporales = [];
+    auth.onAuthStateChanged(user => {
+        const info = document.getElementById('userDisplayName');
+        const fab = document.getElementById('btnNuevo');
 
-    // --- FUNCIONES DE NAVEGACIÓN ---
-    function showView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        document.getElementById('fabMadre').style.display = (viewId === 'madreListView') ? 'flex' : 'none';
-        document.getElementById('fabSub').style.display = (viewId === 'subListView') ? 'flex' : 'none';
-    }
-
-    // --- LÓGICA AGENDAS MADRE ---
-    function openMadreForm() {
-        editingMadreId = null;
-        // Si hay usuario logueado lo ponemos por defecto, si no, lista vacía
-        const userEmail = auth && auth.currentUser ? auth.currentUser.email.toLowerCase() : "invitado@mail.com";
-        miembrosTemporales = [userEmail];
-        document.getElementById('nombreMadre').value = "";
-        renderMiembros();
-        showView('madreFormView');
-    }
-
-    async function addMiembro() {
-        const mail = document.getElementById('inputCorreo').value.trim().toLowerCase();
-        if(!mail) return;
-        if(miembrosTemporales.includes(mail)) return alert("Ya está en la lista");
-
-        if(db) {
-            const userCheck = await db.collection("users").where("email", "==", mail).get();
-            if(userCheck.empty) return alert("Este correo no está registrado en el cantoral.");
-        }
-        
-        miembrosTemporales.push(mail);
-        document.getElementById('inputCorreo').value = "";
-        renderMiembros();
-    }
-
-    function renderMiembros() {
-        const div = document.getElementById('listaMiembrosUI');
-        div.innerHTML = miembrosTemporales.map(m => `
-            <span class="member-tag">${m} 
-            <i class="fas fa-times" onclick="miembrosTemporales = miembrosTemporales.filter(x=>x!=='${m}'); renderMiembros()"></i>
-            </span>`).join('');
-    }
-
-    async function saveMadre() {
-        const nombre = document.getElementById('nombreMadre').value.trim();
-        if(!nombre) return alert("Nombre Requerido");
-
-        const data = {
-            nombre: nombre,
-            miembros: miembrosTemporales,
-            creador: auth && auth.currentUser ? auth.currentUser.email : "local",
-            fecha: new Date()
-        };
-
-        if(db) {
-            await db.collection("agendas_madre").add(data);
+        if (user) {
+            info.innerText = `👤 ${user.email}`;
+            fab.style.display = 'flex';
+            cargarAgenda(user);
         } else {
-            // Modo local si falla Firebase
-            data.id = Date.now().toString();
-            data.subAgendas = [];
-            agendasMadre.push(data);
-            renderMadres();
+            info.innerHTML = `<a href="login.html" style="color:#E8D4A2; text-decoration:underline;">Inicia sesión para participar</a>`;
+            fab.style.display = 'none';
+            document.getElementById('listaActividades').innerHTML = "<p style='text-align:center; opacity:0.5;'>Inicia sesión para ver la agenda.</p>";
         }
-        showView('madreListView');
+    });
+
+    function abrirModal() {
+        if (!auth.currentUser) return;
+        const userEmail = auth.currentUser.email.toLowerCase();
+        const isDirector = userEmail === DIRECTOR_EMAIL.toLowerCase();
+        
+        const ahora = new Date();
+        ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+        document.getElementById('fecha_agenda').value = ahora.toISOString().slice(0, 16);
+
+        document.getElementById('modalTitle').innerText = isDirector ? "Nueva Actividad Pública" : "Nueva Nota Personal";
+        document.getElementById('modalDesc').innerText = isDirector ? "Esto lo verán todos los usuarios." : "Esto solo lo podrás ver tú.";
+        document.getElementById('modal').style.display = 'flex';
     }
 
-    function renderMadres() {
-        const container = document.getElementById('madreContainer');
-        container.innerHTML = agendasMadre.length ? "" : "<p style='text-align:center; opacity:0.5; margin-top:50px;'>No hay agendas.</p>";
-        agendasMadre.forEach(m => {
-            container.innerHTML += `<div class="card" onclick="enterMadre('${m.id}')"><h3>${m.nombre}</h3><p>${m.miembros.length} Miembros</p></div>`;
-        });
+    function cargarAgenda(user) {
+        if (unsubscribe) unsubscribe();
+        const userEmail = user.email.toLowerCase();
+
+        unsubscribe = db.collection("agenda_publica")
+            .where("autor", "in", [DIRECTOR_EMAIL.toLowerCase(), userEmail])
+            .onSnapshot(snap => {
+                const list = document.getElementById('listaActividades');
+                list.innerHTML = "";
+                
+                let actividades = [];
+                snap.forEach(doc => {
+                    actividades.push({ id: doc.id, ...doc.data() });
+                });
+
+                actividades.sort((a, b) => {
+                    const fechaA = a.fecha_programada ? a.fecha_programada.seconds : 0;
+                    const fechaB = b.fecha_programada ? b.fecha_programada.seconds : 0;
+                    return fechaB - fechaA;
+                });
+
+                if (actividades.length === 0) {
+                    list.innerHTML = "<p style='text-align:center; opacity:0.5;'>No hay actividades ni notas.</p>";
+                    return;
+                }
+
+                actividades.forEach(d => {
+                    const esDelDirector = d.autor.toLowerCase() === DIRECTOR_EMAIL.toLowerCase();
+                    const esMio = d.autor.toLowerCase() === userEmail;
+                    
+                    const timestamp = d.fecha_programada || d.fecha;
+                    const fecha = timestamp ? new Date(timestamp.seconds * 1000).toLocaleDateString('es-NI', { 
+                        weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                    }) : 'Reciente...';
+                    
+                    const clasePersonal = !esDelDirector ? 'personal' : '';
+                    const botonBorrar = esMio ? `<i class="fas fa-trash-can btn-delete" onclick="eliminarActividad('${d.id}')"></i>` : '';
+
+                    list.innerHTML += `
+                        <div class="card ${clasePersonal}">
+                            <span class="fecha">${fecha}</span>
+                            ${botonBorrar}
+                            <h3>${d.titulo}</h3>
+                            <p>${d.descripcion}</p>
+                        </div>`;
+                });
+            }, err => {
+                console.error("Error al cargar:", err);
+            });
     }
 
-    // --- LÓGICA ACTIVIDADES ---
-    function enterMadre(id) {
-        currentMadreId = id;
-        const m = agendasMadre.find(a => a.id === id);
-        document.getElementById('currentMadreTitle').innerText = m.nombre;
-        showView('subListView');
+    async function eliminarActividad(id) {
+        if (!confirm("¿Estás seguro de que deseas eliminar esta nota?")) return;
+        try {
+            await db.collection("agenda_publica").doc(id).delete();
+        } catch (e) {
+            console.error(e);
+            alert("Error al eliminar. Puede que no tengas permisos.");
+        }
     }
 
-    function openSubForm() {
-        document.getElementById('tituloSub').value = "";
-        document.getElementById('descSub').value = "";
-        showView('subFormView');
-    }
+    async function guardarActividad() {
+        const u = auth.currentUser;
+        if (!u) return;
 
-    function saveSub() {
-        const tit = document.getElementById('tituloSub').value.trim();
-        if(!tit) return alert("Título Requerido");
-        alert("Actividad Guardada");
-        showView('subListView');
-    }
+        const tit = document.getElementById('titulo').value.trim();
+        const desc = document.getElementById('descripcion').value.trim();
+        const fInput = document.getElementById('fecha_agenda').value;
+        const btn = document.getElementById('btnGuardar');
 
-    // Escuchar cambios de Firebase si está configurado
-    if(auth) {
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.collection("agendas_madre")
-                  .where("miembros", "array-contains", user.email.toLowerCase())
-                  .onSnapshot(snap => {
-                      agendasMadre = [];
-                      snap.forEach(doc => { agendasMadre.push({...doc.data(), id: doc.id}); });
-                      renderMadres();
-                  });
-            }
-        });
+        if (!tit) { alert("El título es obligatorio."); return; }
+        if (!fInput) { alert("La fecha es obligatoria."); return; }
+
+        btn.disabled = true;
+        btn.innerText = "GUARDANDO...";
+
+        try {
+            const fechaSeleccionada = new Date(fInput);
+
+            await db.collection("agenda_publica").add({
+                titulo: tit,
+                descripcion: desc || "Sin descripción",
+                fecha: firebase.firestore.FieldValue.serverTimestamp(),
+                fecha_programada: firebase.firestore.Timestamp.fromDate(fechaSeleccionada),
+                autor: u.email.toLowerCase()
+            });
+            
+            document.getElementById('titulo').value = "";
+            document.getElementById('descripcion').value = "";
+            document.getElementById('modal').style.display = 'none';
+        } catch (e) {
+            console.error(e);
+            alert("Error al guardar.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "PUBLICAR";
+        }
     }
 </script>
 </body>

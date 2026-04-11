@@ -22,6 +22,9 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .header { background: linear-gradient(135deg, var(--primary) 0%, #4E342E 100%); color: white; padding: 2rem; text-align: center; border-radius: var(--radius-lg); margin-bottom: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
         .header h1 { font-family: 'Cinzel', serif; margin: 0; font-size: 1.5rem; }
+        .header img { width: 60px; height: auto; margin-bottom: 10px; }
+        .header .subtitle { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--accent-light); margin-top: 5px; display: block; }
+        .header .author { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; display: block; letter-spacing: 1px; }
         .card { background: var(--surface); padding: 25px; border-radius: var(--radius-lg); border: var(--border); box-shadow: var(--shadow); margin-bottom: 20px; display: none; }
         .card h3 { font-family: 'Cinzel', serif; margin-top: 0; color: var(--accent); display: flex; align-items: center; gap: 10px; }
         .input-styled { padding: 12px; border-radius: 12px; border: 1px solid rgba(184, 134, 11, 0.2); background: var(--bg); width: 100%; box-sizing: border-box; margin-bottom: 10px; }
@@ -43,8 +46,11 @@
 
     <div id="mainPanel" style="display: none;">
         <div class="header">
-            <h1 id="welcomeTxt">PANEL DE CONTROL</h1>
-            <button onclick="logout()" style="background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:0.7rem;">CERRAR SESIÓN</button>
+            <img src="iconos/logo.png" alt="Logo">
+            <h1 id="welcomeTxt">DIRECCIÓN</h1>
+            <span class="subtitle">Graduale Nostrum</span>
+            <span class="author">Walter Reyes</span>
+            <button onclick="logout()" style="background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:0.7rem; margin-top: 15px;">CERRAR SESIÓN</button>
         </div>
 
         <div class="card" id="cardSincro" style="display: block;">
@@ -87,51 +93,68 @@
         const DIRECTOR_EMAIL = "waljrg@gmail.com"; 
         let isAdmin = false;
 
-        // 3. Gestión de Roles y Permisos (Tu lógica)
         auth.onAuthStateChanged(async (user) => {
             if (user && user.email === DIRECTOR_EMAIL) {
                 isAdmin = true;
                 document.getElementById('loginView').style.display = 'none';
                 document.getElementById('mainPanel').style.display = 'block';
-                document.getElementById('welcomeTxt').innerText = "BIENVENIDO, DIRECTOR";
+                // welcomeTxt se mantiene como "DIRECCIÓN" definido en el HTML
                 cargarAdmins();
             } else {
                 isAdmin = false;
-                if(user) alert("Acceso denegado. Solo el Director Principal puede entrar.");
-                auth.signOut();
+                if(user) {
+                    alert("Acceso denegado. Solo el Director Principal puede entrar.");
+                    auth.signOut();
+                }
                 document.getElementById('loginView').style.display = 'block';
                 document.getElementById('mainPanel').style.display = 'none';
             }
         });
 
-        // 5. Lógica de Sincronización (Modo Director)
         async function sincronizarSesion(cantoId, transpose) {
             if(!isAdmin) return;
-            await db.collection("sesion").doc("activa").set({
-                cantoId: cantoId,
-                transpose: transpose,
-                timestamp: Date.now()
-            });
+            try {
+                await db.collection("sesion").doc("activa").set({
+                    cantoId: cantoId,
+                    transpose: transpose,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Señal de sincronización enviada a todos los dispositivos.");
+            } catch (error) {
+                console.error("Error al sincronizar:", error);
+                alert("Error de permisos en Firebase. Revisa las reglas de Firestore.");
+            }
         }
 
-        // Función para el botón del panel
         async function activarSincronizacionTotal() {
-            // Ejemplo: Sincroniza a todos al canto de Inicio o un ID específico
+            const btn = document.getElementById('btnSync');
+            btn.disabled = true;
+            btn.innerText = "ENVIANDO...";
+            
             await sincronizarSesion("Sincronizado_Por_Director", 0);
-            alert("Señal de sincronización enviada a todos los dispositivos.");
+            
+            btn.disabled = false;
+            btn.innerText = "SINCRONIZAR PANTALLAS AHORA";
         }
 
-        // Gestión de Administradores
         async function agregarAdmin() {
             const email = document.getElementById('newAdminEmail').value.trim().toLowerCase();
             if(!email) return;
-            await db.collection("usuarios").doc(email).set({ rol: "admin", fecha: Date.now() });
-            document.getElementById('newAdminEmail').value = "";
+            try {
+                await db.collection("usuarios").doc(email).set({ rol: "admin", fecha: Date.now() });
+                document.getElementById('newAdminEmail').value = "";
+            } catch (error) {
+                alert("Error al añadir admin: " + error.message);
+            }
         }
 
         async function eliminarAdmin(email) {
             if(confirm(`¿Quitar permisos a ${email}?`)) {
-                await db.collection("usuarios").doc(email).delete();
+                try {
+                    await db.collection("usuarios").doc(email).delete();
+                } catch (error) {
+                    alert("Error al eliminar admin: " + error.message);
+                }
             }
         }
 
@@ -148,10 +171,19 @@
                             </button>
                         </div>`;
                 });
+            }, error => {
+                console.error("Error al cargar admins:", error);
             });
         }
 
-        async function loginGoogle() { return await auth.signInWithPopup(provider); }
+        async function loginGoogle() { 
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                alert("Error en login: " + error.message);
+            }
+        }
+        
         async function logout() { return await auth.signOut(); }
     </script>
 </body>

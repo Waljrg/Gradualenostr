@@ -27,18 +27,100 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-image: url('Iconos/fondo.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: #FDFBF7;
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
+            background-color: #FDFBF7;
         }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('Iconos/fondo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            will-change: transform;
+        }
+
+        /* --- PANTALLA DE INTRO LENTA Y FLUIDA --- */
+        #intro-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--primary);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1), visibility 2s;
+            perspective: 1200px;
+        }
+
+        .intro-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            will-change: transform, opacity;
+        }
+
+        #intro-logo {
+            width: 150px;
+            opacity: 0;
+            transform: translateZ(-1200px) rotateY(1080deg);
+            animation: zoomInSpin 5.0s cubic-bezier(0.2, 1, 0.3, 1) forwards, 
+                       floatUp 1.5s cubic-bezier(0.45, 0, 0.55, 1) 5.0s forwards;
+        }
+
+        #intro-title-container {
+            width: 0;
+            overflow: hidden;
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeInTitle 1s cubic-bezier(0.4, 0, 0.2, 1) 5s forwards;
+        }
+
+        #intro-title-img { width: 280px; max-width: 80vw; }
+
+        #intro-pax {
+            font-family: 'Cinzel', serif;
+            color: var(--accent);
+            letter-spacing: 6px;
+            margin-top: 20px;
+            min-height: 1.5em;
+            font-size: 1.1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.6);
+        }
+
+        @keyframes zoomInSpin {
+            to { opacity: 1; transform: translateZ(0) rotateY(0deg); }
+        }
+
+        @keyframes floatUp {
+            to { transform: translateY(-40px); }
+        }
+
+        @keyframes fadeInTitle { 
+            from { opacity: 0; width: 0; }
+            to { opacity: 1; width: 100%; }
+        }
+
+        .shrink-all {
+            animation: finalShrink 2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+        }
+
+        @keyframes finalShrink {
+            to { transform: scale(0.3) translateY(-180%); opacity: 0; filter: blur(15px); }
+        }
+
+        /* --- FIN INTRO --- */
 
         header {
             background: linear-gradient(135deg, var(--primary) 0%, #4E342E 100%);
@@ -50,15 +132,87 @@
             box-shadow: var(--shadow);
             position: relative;
             z-index: 10;
+            opacity: 0;
+            animation: fadeIn 1.5s ease 8.5s forwards;
         }
 
-        .header-title {
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .header-logo {
+            width: 80px; 
+            height: auto;
+            margin-bottom: 10px;
+            filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.5));
+            animation: rotateLogo 8s infinite linear, shineLogo 3s infinite ease-in-out;
+        }
+
+        @keyframes rotateLogo {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        @keyframes shineLogo {
+            0%, 100% { filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.5)) brightness(1); }
+            50% { filter: drop-shadow(0px 0px 15px rgba(212, 175, 55, 0.8)) brightness(1.4); }
+        }
+
+        .title-img-container {
+            width: 90%;
+            max-width: 300px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-img-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right, 
+                rgba(212, 175, 55, 0) 0%, 
+                rgba(212, 175, 55, 0.4) 50%, 
+                rgba(212, 175, 55, 0) 100%
+            );
+            transform: skewX(-25deg);
+            animation: sweep 7s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        @keyframes sweep {
+            0% { left: -150%; }
+            30% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        .subtitle-pax {
             font-family: 'Cinzel', serif;
-            font-size: 1.6rem;
-            margin: 0;
-            letter-spacing: 1px;
-            color: var(--text-light);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 0.85rem;
+            margin-top: -2px;
+            letter-spacing: 3px;
+            font-weight: 400;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            background: linear-gradient(to right, #B8860B 20%, #FDFBF7 50%, #B8860B 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shineText 5s linear infinite;
+        }
+
+        @keyframes shineText {
+            to { background-position: 200% center; }
         }
 
         .hub-container {
@@ -69,6 +223,8 @@
             flex: 1;
             position: relative;
             z-index: 20;
+            opacity: 0;
+            animation: fadeIn 1.5s ease 8.8s forwards;
         }
 
         .grid-apps {
@@ -79,9 +235,12 @@
         }
 
         .app-card {
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3) !important; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); 
             border-radius: var(--radius-lg);
-            border: var(--border-gold) !important;
             text-decoration: none;
             color: var(--text-dark);
             display: flex;
@@ -89,23 +248,60 @@
             align-items: center;
             justify-content: center;
             padding: 10px;
-            transition: all 0.2s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             text-align: center;
             aspect-ratio: 1 / 1;
             width: 100%;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Botón especial de Director */
+        .app-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right, 
+                rgba(212, 175, 55, 0) 0%, 
+                rgba(212, 175, 55, 0.15) 50%, 
+                rgba(212, 175, 55, 0) 100%
+            );
+            transform: skewX(-25deg);
+            animation: sweep 6s infinite ease-in-out;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .grid-apps a:nth-child(odd)::after { animation-delay: 0.5s; animation-duration: 6.5s; }
+        .grid-apps a:nth-child(even)::after { animation-delay: 1.5s; animation-duration: 7s; }
+        #btnDirector::after { animation-delay: 2.5s; animation-duration: 5.5s; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent) !important;
+            box-shadow: 0 12px 40px rgba(184, 134, 11, 0.2);
+        }
+
         #btnDirector {
-            display: none; /* Oculto por defecto */
-            border: 3px double var(--accent) !important;
+            display: none;
+            background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%);
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.5);
+        }
+
+        #btnDirector i, #btnDirector span {
+            color: white !important;
         }
 
         .login-bar {
             grid-column: span 2;
-            background: var(--primary);
+            background: linear-gradient(145deg, #3e2f2c, #1f1716);
             color: var(--text-light);
             padding: 15px;
             border-radius: 15px;
@@ -120,39 +316,47 @@
             font-weight: 700;
             font-size: 0.8rem;
             letter-spacing: 1px;
-            box-shadow: var(--shadow);
-            transition: all 0.2s;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             cursor: pointer;
         }
 
-        .login-bar:active { opacity: 0.8; transform: scale(0.98); }
-        .app-card:active { transform: scale(0.95); }
-        .app-card i { font-size: 1.5rem; color: var(--accent); margin-bottom: 6px; }
-        .app-card span { font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; }
+        .login-bar:active { 
+            transform: scale(0.98);
+        }
+        
+        .app-card:active { transform: scale(0.93); }
+
+        .app-card i { 
+            font-size: 1.5rem; 
+            color: var(--accent); 
+            margin-bottom: 6px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+            position: relative; z-index: 3;
+        }
+
+        .app-card span { 
+            font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.6rem; 
+            text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; 
+            position: relative; z-index: 3;
+        }
 
         footer {
             padding: 15px; text-align: center;
             background: rgba(253, 251, 247, 0.92); 
             border-top: 1px solid rgba(184, 134, 11, 0.2);
             margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease 9.2s forwards;
         }
 
         .btn-vatican {
-            display: inline-block;
-            text-decoration: none;
-            color: var(--accent);
-            font-family: 'Cinzel', serif;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            padding: 4px 12px;
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            transition: all 0.2s;
+            display: inline-block; text-decoration: none; color: var(--accent);
+            font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+            padding: 4px 12px; border: 1px solid var(--accent); border-radius: 10px;
+            transition: all 0.3s ease;
         }
-        .btn-vatican:active { background: var(--accent); color: white; }
 
         .footer-links { display: flex; justify-content: center; gap: 15px; margin-bottom: 8px; }
         .footer-links a { text-decoration: none; color: var(--text-dark); font-size: 0.6rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; }
@@ -161,42 +365,64 @@
 </head>
 <body>
 
+<div id="intro-overlay">
+    <div class="intro-content" id="intro-box">
+        <img src="Iconos/logo.png" id="intro-logo" alt="Logo">
+        <div id="intro-title-container">
+            <img src="Iconos/gn.png" id="intro-title-img" alt="Graduale Nostrum">
+        </div>
+        <div id="intro-pax"></div>
+    </div>
+</div>
+
 <header>
     <div class="welcome-text">
-        <h1 class="header-title">Graduale Nostrum</h1>
+        <img src="Iconos/logo.png" alt="Logo" class="header-logo">
+        <div class="title-img-container">
+            <img src="Iconos/gn.png" alt="Graduale Nostrum" class="title-img">
+        </div>
+        <div class="subtitle-pax">Pax et Bonum</div>
     </div>
 </header>
 
 <div class="hub-container">
     <div class="grid-apps">
-        <a onclick="accesoProtegido('cantoral.html')" class="app-card">
+        <a onclick="accesoProtegido('cantoral.html', this)" class="app-card">
             <i class="fas fa-book-open"></i>
             <span>Cantoral</span>
         </a>
-        <a onclick="accesoProtegido('oraciones.html')" class="app-card">
+        <a onclick="accesoProtegido('oraciones.html', this)" class="app-card">
             <i class="fas fa-hands-praying"></i>
             <span>Oraciones</span>
         </a>
-        <a onclick="accesoProtegido('agenda.html')" class="app-card">
+        <a onclick="accesoProtegido('agenda.html', this)" class="app-card">
             <i class="fas fa-calendar-alt"></i>
             <span>Agenda</span>
         </a>
-        <a onclick="accesoProtegido('entrenamiento.html')" class="app-card">
+        <a onclick="accesoProtegido('entrenamiento.html', this)" class="app-card">
             <i class="fas fa-dumbbell"></i>
             <span>Entrenamiento</span>
         </a>
-        <a onclick="accesoProtegido('piano.html')" class="app-card">
+        <a onclick="accesoProtegido('piano.html', this)" class="app-card">
             <i class="fas fa-music"></i>
             <span>Piano</span>
         </a>
-        <a onclick="accesoProtegido('Formación/Formación.html')" class="app-card">
+        <a onclick="accesoProtegido('Formación/Formación.html', this)" class="app-card">
             <i class="fas fa-graduation-cap"></i>
             <span>Formación</span>
+        </a>
+        <a onclick="accesoProtegido('social.html', this)" class="app-card">
+            <i class="fas fa-users"></i>
+            <span>Perfiles</span>
+        </a>
+        <a onclick="accesoProtegido('calendario.html', this)" class="app-card">
+            <i class="fas fa-calendar-check"></i>
+            <span>Calendario</span>
         </a>
 
         <a id="btnDirector" href="director.html" class="app-card">
             <i class="fas fa-star"></i>
-            <span style="color: var(--accent);">Director</span>
+            <span>Director</span>
         </a>
 
         <div id="authBtn" class="login-bar" onclick="gestionarSesion()">
@@ -218,7 +444,34 @@
 </footer>
 
 <script>
-    // Configuración de Firebase
+    window.addEventListener('DOMContentLoaded', () => {
+        const introPax = document.getElementById('intro-pax');
+        const text = "Pax et Bonum";
+        
+        setTimeout(() => {
+            let i = 0;
+            const timer = setInterval(() => {
+                if (i < text.length) {
+                    introPax.innerHTML += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(timer);
+                    setTimeout(finalizarIntro, 1200);
+                }
+            }, 180); 
+        }, 5500); 
+    });
+
+    function finalizarIntro() {
+        const introBox = document.getElementById('intro-box');
+        const overlay = document.getElementById('intro-overlay');
+        introBox.classList.add('shrink-all');
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.visibility = 'hidden'; }, 2000);
+        }, 1500);
+    }
+
     const firebaseConfig = {
         apiKey: "AIzaSyCx_3nwwj3mKAEmtNVW0OaKamuaovhcM-w",
         authDomain: "graduale-nostrum.firebaseapp.com",
@@ -234,23 +487,15 @@
     const DIRECTOR_EMAIL = "waljrg@gmail.com";
     let usuarioLogueado = false;
 
-    // Monitor de estado de sesión
     auth.onAuthStateChanged((user) => {
         const authText = document.getElementById('authText');
         const authIcon = document.getElementById('authIcon');
         const btnDirector = document.getElementById('btnDirector');
-
         if (user) {
             usuarioLogueado = true;
             authText.innerText = "CERRAR SESIÓN";
             authIcon.className = "fas fa-sign-out-alt";
-            
-            // Lógica de visibilidad del botón Director
-            if (user.email === DIRECTOR_EMAIL) {
-                btnDirector.style.display = "flex";
-            } else {
-                btnDirector.style.display = "none";
-            }
+            if (user.email === DIRECTOR_EMAIL) btnDirector.style.display = "flex";
         } else {
             usuarioLogueado = false;
             authText.innerText = "INICIAR SESIÓN";
@@ -259,21 +504,15 @@
         }
     });
 
-    // Lógica del botón inferior
     function gestionarSesion() {
         if (usuarioLogueado) {
-            auth.signOut().then(() => {
-                alert("Has cerrado sesión.");
-            }).catch((error) => {
-                console.error("Error al cerrar sesión:", error);
-            });
+            auth.signOut().then(() => { alert("Has cerrado sesión."); });
         } else {
             window.location.href = "login.html";
         }
     }
 
-    // Lógica de los botones protegidos
-    function accesoProtegido(url) {
+    function accesoProtegido(url, element) {
         if (usuarioLogueado) {
             window.location.href = url;
         } else {
@@ -281,6 +520,9 @@
             window.location.href = "login.html";
         }
     }
+
+    window.addEventListener('pageshow', () => {
+    });
 </script>
 
 </body>

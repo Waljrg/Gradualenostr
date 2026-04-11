@@ -1,5 +1,6 @@
 {
-  "appId": "com.waljrg.graduale",
-  "appName": "Graduale Nostrum",
-  "webDir": "./"
+  "appId": "com.corosanfrancisco.app",
+  "appName": "Coro San Francisco",
+  "webDir": "www",
+  "bundledWebRuntime": false
 }
