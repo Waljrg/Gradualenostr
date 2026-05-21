@@ -5161,3 +5161,24 @@ function inicializarFiltrosModal() {
 </script>
 </body>
 </html>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Verificamos si la aplicación corre bajo el entorno nativo de Capacitor
+    if (window.Capacitor && window.Capacitor.Plugins) {
+      const { App } = window.Capacitor.Plugins;
+
+      App.addListener('backButton', () => {
+        // Obtenemos el nombre del archivo HTML actual en el que se encuentra el usuario
+        const paginaActual = window.location.pathname.split("/").pop();
+
+        // Si el usuario está en el index principal o en el login, el botón de atrás cierra la app
+        if (paginaActual === 'index.html' || paginaActual === '' || paginaActual === 'login.html') {
+          App.exitApp();
+        } else {
+          // Si está en cantoral.html, director.html u otra sección, regresa a la página web anterior
+          window.history.back();
+        }
+      });
+    }
+  });
+</script>
