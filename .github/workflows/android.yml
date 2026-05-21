@@ -1,4 +1,4 @@
-Name: Build Android APK
+name: Build Android APK
 on:
   push:
     branches: [ main, principal ]
@@ -7,22 +7,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 1.0
+          node-version: '20' # Se cambió a una versión moderna y estable (entre comillas)
+
       - name: Install Dependencies
         run: |
           npm install
           npm install @capacitor/cli @capacitor/android @capacitor/assets
+
       - name: Generate Icons
         run: npx capacitor-assets generate --android
+
       - name: Initialize Android
         run: |
           npx cap add android || true
           npx cap sync
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3 # Agregado para configurar el entorno de Java/Gradle correctamente
+
       - name: Build APK
         run: |
           cd android && ./gradlew assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
